@@ -1,0 +1,116 @@
+* Inbox
+** TODO 改善活動のキックオフ資料を作成する [2014-04-07 月 01:28]
+** DONE コベリティ―修正について AVI に確認すべきことを確認する [2014-04-11 金 14:27]
+- userspace/source/xavcIfo/IF/xavcIfo_Rec.cpp
+xavcIfo_Rec::GetContentInformation
+->MakeFilePath
+** TODO 武田君の修正の確認 [2014-04-11 金 15:58]
+以下のリビジョン間の修正を行う
+Mojito_TypeXのr9320からr9327の間がリストにあがっていた修正になります。
+** TODO Replacer修正 (1) [2014-04-09 水 16:19]
+- リスト[0/0]
+[ ] stack pointer 復帰の indirect, indirect を修正
+[ ] sync 系の API を sus/res 別 (master)
+sus の時は resume 側の wakeup_and_wait_for_master は次の context のものにする必要がある
+[ ] recovery pram の実装                              (master)
+__attribute__((noinline)) static void
+replace_program_and_resume_program_recovery_pram(const uint32_t work_pram_addr, param)
+{
+    ///
+    /// Ra を取得する
+    ///
+    uint32_t r7;
+    uint32_t r6;
+    __asm__ volatile ("mv %0, R15\n", ((r7)));
+    __asm__ volatile ("sub %0, #4\n", ((r7)));
+    __asm__ volatile ("%0, @(0, %1)\n", ((r6), (r7)));
+
+    ...
+
+    ///
+    /// R15 を復帰
+    /// 先の Ra に cl
+    ///
+    R15 = param.R15;
+    __asm__ volatile ("cl r6\n");
+}
+[ ] sync B の実装                                     (slave)
+__attribute__((noinline)) void
+wait_and_wakeup_for_slave(const uint32_t param, const uint32_t recv_flag)
+{
+    Rx = *(R15 - 4);
+    wait_single(WAKEUP_MASK_BIT_UNIT1_CORE5);
+    wakeup(WAKEUP_MASK_BIT_UNIT1_CORE5);
+    if (recv_flag != 0)
+    {
+        if (param.resume)
+        {
+            R15 = param;
+            cl Rx;
+        }
+    }
+    ret;
+}
+[ ] sus/boot 時に R15 の復帰処理はしない
+** TODO RecoveryPram の実装について (2) [2014-04-14 月 14:02]
+- Items[0/0]
+work(PRAM番号が上の方): DMA command, DMA work, internal info の置き場所として使っている PRAM
+[ ]: setup の際に、PRAM 復帰用の DMA command を work(PRAM番号が上の方) に作成する
+[ ]: setup の際に、recovery pram で使用する大きな値 (e.g. DMA start addr) を計算し、
+     work(PRAM番号が上の方) に作成する
+[ ]: revery pram 自体は、inline assembly にして、
+     set DMA address
+     start DMA
+     wait DMA
+     にして、アドレス非依存なものにする。
+[ ]: setup の際に、recovery pram のプログラムを iram_work にコピーする
+     (256 で足りなくなっている場合は, CORE5 用だけ大きくするようにしてもらう)
+[ ]: _impl のなかでは、上記のコピーした先を cl するようにする
+** TODO [MPR][release_kaizen]: get_rts_info が動かない問題 [2014-04-15 火 12:30]
+Redmine のチケットにあるはずなので確認する
+** TODO ReplacerSlaveの最終確認 [2014-04-16 水 15:20]
+rev. 9344 が最終コードなのでそれを確認する
+■ 待ち合わせ関数名のネーミングルールの統一
+m_wait_and_wakeup_for_slave_func_addr
+m_sync_with_u0c0_func_addr
+m_sus_wakeup_and_wait_for_master_func_addr
+m_res_wakeup_and_wait_for_master_func_addr
+
+■ suspend_t/boot_resume_t ないのパラメータの並びの統一
+stack/prologue, epilogue/stack
+
+■ alignment を削除
+
+■ typo を削除
+        /* 72 */uint32_t   m_wakeup_maskc_register_addr;    /// maskc reg addr.
+        /* 76 */uint32_t   m_wakeup_mask_bit_unit1_dma2;    /// maskc data.
+
+■ rexerved の挿入サイズを TMP static で計算する
+■ void*    m_epilogue_func_addr;  /// function address to epilogue in resuming.
+の場所を変更したい
+■ static const uint32_t REPLACE_CONTROLLER_PROGRAM_MAX_WORD_SIZE     = 256;
+・名前が行けてない
+・/2が入っているのが行けてない
+
+** TODO 2014/05/15 HFR WG 宿題 [2014-05-16 金 09:51] [5/8]
+- [X] 概略仕様書にWiFiリモコン項目を別途設ける
+- [X]  PMM 連携のやつを追加
+- [ ] 記録モードで、HK UUG の 100M を乗せることは可能かどうかを関係するチームに確認を取る
+依頼済み
+刈り取り未
+- [ ] EE表示 (外付)について、出力できるのかどうか、AVDevice チーム、SD 部に確認する
+依頼済み
+刈り取り未
+- [ ] コンテンツの PMM コピーについて、既存のセットの仕様を確認する ★ 吉本さん, 舩元
+- [X] なめらか再生について、実現できない理由を調査する ★ 舩元
+依頼済
+刈り取り済
+HFR 全面展開で語られており、そちらに従う
+- [X] XAVC HD の bitrate が 50M の理由を確認する。また、60M にできないのかどうかを確認する ★ 舩元
+50M は業界で進められている値
+60M は規格としては可能
+最大は 80M
+- [X] Action Cam で既存で実装されている、絵作りのモードを今回の HFR に適応可能かどうかを確認する ★ 関係するチーム
+依頼済み
+刈り取り済
+CamYC、CamCC 共に実現性に今のところ課題は見られない

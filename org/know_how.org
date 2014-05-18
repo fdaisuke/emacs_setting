@@ -1,0 +1,82 @@
+* emacs
+** org
+*** 基本
+- M-Ret
+レベル保持しながら改行
+- M-left, M-right
+その項目についてレベルの上げ・下げ
+- M-S-left, M-S-right
+その項目以下についてレベルの上げ・下げ
+*** Agenda
+- C-c o (org-remenber)(キーバインド)
+- C-c C-s (開始日入れる)
+- C-c C-d (dead line 入れる)
+- Shift 矢印 (移動)
+*** ハイパーリンク
+- C-cl (リンクをストア)(キーバインドを追加)
+- C-cC-l (リンクを挿入)
+- C-cC-o (リンクをたどる)
+*** チェックリスト
+- 見だしに[/]を入れる
+- その下の項に[ ]を入れる
+- 見出しで、C-c C-c する
+- すると、見出しの[/]が[m/n]となる
+- 下の項の作業が終了したら、C-c C-c とすると[X]が入り、見出しも変わる
+**** example[2/4]
+- [X] check0
+- [ ] check1
+- [X] check2
+- [ ] check3
+*** [TODO]の修正
+** align
+- align
+基本ルールでアライン
+- C-u M-x align
+ルールを拡張してアライン
+- M-x align-current
+境界に対してアライン
+- M-x align-regexp
+アラインするべき文字を正規表現でつたえる
+** book mark
+- C-x r m
+カレントバッファをブックマークに追加 (デフォルトではファイル名＝ブックマーク名)
+- C-x r b
+ブックマーク名を指定して開く
+- C-x r l
+ブックマークの一覧を表示
+- d
+一覧表示で、ブックマークに削除マークをつける
+- x
+一覧表示で、削除マークのついたものを削除
+* Cygwin
+** ログインシェルの変更
+c:/cygwin/etc/passwd を開き、最後の項に使用したいシェルのパスを書く
+* Windows
+** Windows7
+*** ファイル名を指定して実行の履歴を消す
+1. スタートメニュー -> 右クリック -> プロパティ
+2. [スタート]メニュー Tab -> プライバシー -> 「最近開いたプログラムを[スタート]メニューに保存し表示する」チェックを外し、適用
+3. 「最近開いたプログラムを[スタート]メニューに保存し表示する」チェックを行い、OK
+* Inbox
+** LeakTracer [2014-04-08 火 10:32]
+URL: http://www-etools.cv.sony.co.jp/web/LeakTracer/
+- leaktracer モードに入れる
+1. change_mode.sh 7
+- リーク確認
+1. ps -aef | grep im.elf
+   im の PS 番号取得
+2. cat /proc/xxx/maps > /tmp/map.txt
+   im の maps を取得
+3. echo 0 > /tmp/leaktracer.in
+4. cat /tmp/leaktracer.out > /tmp/leak.txt
+5. 取得データを変換する
+- ダブルフリー確認
+1. cat /tmp/leak.out
+** Ulogio Off
+- ulogio filter off 0
+** シス確 (CBH) Powerボタンの位置
+- 電源基盤についてあるスイッチの、一番端でリセットじゃない方
+** シス確 (CBH) での req reset の方法について
+- 電源基盤についてあるスイッチの真ん中と
+  ネットワーク基盤の下の方にあるスイッチの同時押し
+
