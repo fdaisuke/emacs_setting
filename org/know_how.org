@@ -48,15 +48,41 @@
 一覧表示で、ブックマークに削除マークをつける
 - x
 一覧表示で、削除マークのついたものを削除
+* HKKB
+** キーの名前について
+左下の Fn の次から
+1. 半角・全角
+2. Windows Key
+3. ALT
+4. 無変換
+5. Space
+6. 変換
+7. 平仮名
+8. ALT
+9. Fn
 * Cygwin
 ** ログインシェルの変更
 c:/cygwin/etc/passwd を開き、最後の項に使用したいシェルのパスを書く
+* Jenkins
+** パスワードを非表示
+Mask Passwords
 * Windows
 ** Windows7
 *** ファイル名を指定して実行の履歴を消す
 1. スタートメニュー -> 右クリック -> プロパティ
 2. [スタート]メニュー Tab -> プライバシー -> 「最近開いたプログラムを[スタート]メニューに保存し表示する」チェックを外し、適用
 3. 「最近開いたプログラムを[スタート]メニューに保存し表示する」チェックを行い、OK
+*** google IME の設定
+**** 設定内容
+- Hiragana に IME Off/On をトグルさせるように
+- 変換前入力中に\C-0で直接入力するように
+**** Key配置
+直接入力:     半角英数
+入力文字なし: Google IME で入力してない時
+変換前入力中: Google IME で入力中(スペース押して変換する前)
+変換中      : Google IME で変換中
+**** ポップアップを消す
+「入力補助->カーソル周辺に入力モードを表示する」のチェックボックスを減らす
 * Inbox
 ** LeakTracer [2014-04-08 火 10:32]
 URL: http://www-etools.cv.sony.co.jp/web/LeakTracer/
@@ -72,11 +98,328 @@ URL: http://www-etools.cv.sony.co.jp/web/LeakTracer/
 5. 取得データを変換する
 - ダブルフリー確認
 1. cat /tmp/leak.out
-** Ulogio Off
-- ulogio filter off 0
+** Ulogio
+- off
+ulogio filter off 0
+- on
+ulogio filter on 0 info
 ** シス確 (CBH) Powerボタンの位置
 - 電源基盤についてあるスイッチの、一番端でリセットじゃない方
 ** シス確 (CBH) での req reset の方法について
 - 電源基盤についてあるスイッチの真ん中と
   ネットワーク基盤の下の方にあるスイッチの同時押し
 
+** ClearCase
+*** cleartool find . -version "{(brtype(main) || brtype(br_rel_20130117_RM_RMD)) && created_since(15-Jun) }" -exec 'cleartool desc -fmt "[CC_FIND]: what=%n, when=%d, who=%u\n" $CLEARCASE_XPN'
+** DMM のメモリサイズ変更
+- ユニットエクステント定義.xlsm で所望の UnitType を見つけてサイズを増やす
+- Memmap_camhk4g-mss.xlsm 等の excel 開いてマクロ実行
+- ruby で .bin 作る
+- 以降は doc 以下に情報が乗っている
+** Excel で行に色を付ける
+- 数式:   =$H7="未"
+- 適用先: =$B$7:$H$1000
+
+** [linux][rsync]: オプション
+	-a: リンクもコピー
+	-z: 圧縮コピー
+	-r: 再帰
+	-v: log 出力
+	--copy-unsafe-links: 階層を超えた場所にあるものだけをコピー
+** [C++][socket]: any で確保した port 番号を取得する
+	int main(void)
+	{
+	    WSADATA            wsad;
+	    SOCKET             sock;
+	    struct sockaddr_in addr;
+	    struct sockaddr_in actual_address;
+	    int                addr_size = sizeof(actual_address);
+	    WSAStartup(MAKEWORD(2, 2), &wsad);
+	    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_IP);
+	    addr.sin_family           = AF_INET;
+	    addr.sin_port             = htons(0);
+	    addr.sin_addr.S_un.S_addr = INADDR_ANY;
+	    bind(sock, (struct sockaddr*) &addr, sizeof(addr));
+	    listen(sock, SOMAXCONN);
+	    getsockname(sock, (struct sockaddr*) &actual_address, &addr_size);
+	    printf("The selected port is %d.\n", ntohs(actual_address.sin_port));
+	    getchar();
+	    return 0;
+	}
+** CC command list
+	ct mkview -snap -tag 0000126209.deep_for_mpr0_snap -vws `pwd`/0000126209.deep_for_mpr0_snap.vws `pwd`/0000126209.deep_for_mpr0_snap
+
+** [Jenkins] Web からタスク実行:
+	my $url = 'http://felis00.cv.sony.co.jp/jenkins/job/MC_TEST_COMPONENT_NORMAL_COMMON_0000_CHECKOUT_CONFIG_SPEC/';
+	my $cmds = "$";
+
+** CC command list
+	cleartool find . -version "{(brtype(main) || brtype(br_rel_20130117_RM_RMD)) && created_since(15-Jun) }" -exec 'cleartool desc -fmt "[CC_FIND]: what=%n, when=%d, who=%u\n" $CLEARCASE_XPN'
+
+** CC command list
+	ct co -nc -unre file : コメントなし/非予約 checkout
+	ct co -nc file	     : コメントなし/予約 checkout
+	ct ci -nc file	     : コメントなし checkin
+	ct ci file	     : コメントあり checkin
+	ct unco -rm file     : .keep 作らず/checkout 削除
+	ct reserve -nc file  : 予約する
+	ct diff -nc file     : ??
+	ct update -ove       : 更新する/ハイジャックも
+
+**  /etc/hosts:
+	自分の名前を
+	/etc/resolv.conf
+	nameserver 137.153.66.28
+	nameserver 137.153.112.2
+	search cv.sony.co.jp jp.sony.com
+	/etc/sysconfig/network
+	HOSTNAME=felix00.cv.sony.co.jp
+	/etc/sysconfig/network-scripts/ifcfg-eth0
+	# Intel Corporation 82579LM Gigabit Network Connection
+	DEVICE=eth0
+	BOOTPROTO=none
+	HWADDR=5C:F9:DD:77:1F:9E
+	ONBOOT=yes
+	NETMASK=255.255.252.0
+	IPADDR=43.16.39.14
+	GATEWAY=43.16.36.1
+	TYPE=Ethernet
+	USERCTL=no
+	IPV6INIT=no
+	PEERDNS=yes
+
+** [linux]:
+	ipcs
+	shmem とかの状態を取得
+
+** proxy:
+	http_proxy=http://proxy.sngw.sony.co.jp:10080
+	https_proxy=http://proxy.sngw.sony.co.jp:10080
+	ftp_proxy=http://proxy.sngw.sony.co.jp:10080
+
+** gdb:
+	finish 関数抜ける
+	info break
+	delete bnum
+	disable bnum
+	enable bnum
+
+** [program]:
+	- 文字に色を付ける
+	echo -e "\e[31m"
+	3: 付加情報で文字
+	1: 色で赤
+	を表す
+	付加情報: 1 太字
+		  2 弱強調
+		  3 文字
+		  4 背景
+		  5 点滅
+		  7 反転
+		  8 非表示
+	色: 0 Black
+	    1 Red
+	    2 Green
+	    3 Yellow
+	    4 Blue
+	    5 Magenta
+	    6 Cyan
+	    7 White
+	- 元に戻す方法
+	echo -e "\e[m"
+	- 複数指定したい場合
+	';'区切りで行う
+	echo -e "\e[33;41;1m"
+	- 例えば
+	echo -e "\e[33;41;1mhoge\e[m"
+	文字=黄色, 背景=赤
+
+** [program][c++]: basename という名前は使ってはいけない。
+	linux では提供されている関数みたい
+
+** [program][c++]: setfill, setw
+	cout << std::setfill('0') << std::setw(4) << counter;
+
+** [emacs]: highlight-regexp
+	ファイル内の keyword を highlight 表示
+
+** [program][c++][stl]: コンテナの総和を求める
+	#include <stdio.h>
+	#include <numeric>
+	#include <list>
+	int
+	main(int argc, char* argv[])
+	{
+	    std::list<uint32_t > l;
+	    l.push_back(10);
+	    l.push_back(20);
+	    l.push_back(30);
+	    l.push_back(40);
+	    const uint32_t result = std::accumulate(l.begin(), l.end(), 10);
+	    printf("%d\n", result);
+	    return 0;
+	}
+	結果は110
+	accumulate(begin, end, initial_value)
+** [program][c++][mmap]: ファイルをバッファーにする sample
+int
+main(int argc, char* argv[])
+{
+    const int fd = open("file.bin", O_RDWR);
+    struct stat st;
+    fstat(fd, &st);
+    const size_t size = st.st_size;
+    uint8_t*const ptr = reinterpret_cast<uint8_t* >(mmap(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
+    for (uint32_t i = 0; i < size; i++)
+    {
+        printf("[%d]: %d\n", i, ptr[i]);
+        ptr[i] += 0;
+    }
+    msync(ptr, size, MS_SYNC);
+    munmap(ptr, size);
+    close(fd);
+    return 0;
+}
+** liro build
+こちらにリストがある
+/vobs/SET/export/sony/conf/liro_vob_list.mk
+make avmoviecodec=1
+make avavcmpeg2=1
+** osal print
+#include <ulogio_pro.h>
+osal_printf_pro(SID_I_MPR, 0, DEBUG_ERROR, "%s", buffer);
+** mpr log
+<\\MPR_DOC_MediaWG\次世代\開発環境\ツール\logconv\>
+** パタジェネ
+backup id: 30072
+** UHS 対応
+backup id: D900BF, SD0_UHS_SPEED_MAX
+5 にすると良い
+backup id: D900BE, SD0_DRVTYPE_SDR50_L
+1 にすると良い
+
+D900BFがSD0_UHS_SPEED_MAXでした。
+先ほどはこれを5にしたので最高モードをSDR50　81.0MHzです。
+他に設定すべきはD900BE(SD0_DRVTYPE_SDR50_L)です。
+この設定値は0x01 がdefaultです。
+
+回路によってはこの値ではだめなものもありますが設計から返答がくるまで
+とりあえずdeafaultにしておけばよいかと思います。ただし設計からの推奨値がない状態ですと
+Read/Writeでアクセスエラーやマウントできない等発生することがあります。
+** backup 作成
+①セットVOB/SetData/***(セット名)/SoftwareSpec.xmlをチェックアウト。
+②SSITEMを修正
+　SoftwareSpec.xmlをSSITEMで検索し、引っかかった箇所を全て下記手順にて修正。仕向けの数だけ検索されるので注意。一律修正する。
+
+（例）SSITEM「FLASHBACKUP_DRIVER」の値をSDM→STANDARDへ変更　
+   修正前
+　<linkage ssitem="FLASHBACKUP_DRIVER" variation="SDM" adr="dig-diad-scm@jp.sony.com" color="37"/>
+　修正後
+　<linkage ssitem="FLASHBACKUP_DRIVER" variation="STANDARD" adr="dig-diad-scm@jp.sony.com" color="37"/>
+
+③セットVOB直下でmake backup
+   cd /vobs/142H_Dslr-Diadem/
+　source switchenv ***
+　make backup
+ 
+④生成されたBackup.zipを焼く。
+　ビルド生成物は、下記パスに置かれるので注意。
+　/vobs/Etools-Backup-Build-Tools_1xxH/backupdata/
+** BAM
+◆ kemco での設定
+cxd90014.bam=Y      ; clock 入れる
+bam.panic=Y         ; 検出時 exception させる
+bam.s2=0xNNNNNNN0   ; 開始アドレス
+bam.e2=0xMMMMMMM0   ; 終了アドレス(+1 したもの)
+bam.m2=0x00000000   ; 許す IP
+bam.mh2=0x00200000  ; 許す IP
+
+◆ 仕様書
+<C:\Users\0000126209\Desktop\work\900_other_work\005_bam>
+BAM機能仕様書.pdf
+
+◆ kernel のログが出ない
+dmesg で吐き出せる
+
+◆ ターミナルでパラメータ変更
+/sys/module/bam/parameters 以下のファイルを書き換え、
+その後、echo 1 > /proc/bam
+
+e.g. panic を Off に
+$ echo N > panic
+$ echo 1 > /proc/bam
+
+◆ 引っかからないあるある
+- DDR の大きさを超えての書き込み(ミラーされる)
+ミラーされた書き込みの場合、DDR 物理アドレスを設定しても BAM に引っかからないことがある。
+
+例えば、512MB のメモリを積んだモデルにおいて、
+128M-129MにBAMを仕掛けた状態で、
+512 + 128 = 640M-641M に書き込みが起きた場合、
+BAM には引っかからない。
+
+なので以下の設定を追加する。
+# 0で128M-129Mを設定
+bam.s0=0x88000000
+bam.e0=0x89000000
+bam.m0=0x00000000
+bam.mh0=0x00000000
+# 1で640M-641Mを設定
+bam.s1=0x28000000
+bam.e1=0x29000000
+bam.m1=0x00000000
+bam.mh1=0x00000000
+bam.t1=0 ★ ここで DDR ということを設定
+
+※ ミラーに気が付けないことがあるので、ulogio とかを使って、メモリが本当に壊れていないことを確認した方がいい
+ulogio mf 0x83000000 1024 0
+ulogio dl 0x83000000 1024
+
+** kemco
+◆ パラメータ
+- wbimem
+SSBI で動くときに必要な設定
+rammap が変わると買える必要あり
+
+- mem
+mem=サイズ@開始アドレス@ID という表記
+kernel に認識させるメモリアドレスを設定する
+
+- memrsv
+memrsv=サイズ@開始アドレス という表記
+kernel に使用させないようにするメモリアドレスを設定する
+DMMとかDriverの使用領域とかがある
+
+- secgrp
+secgrp=サイズ@開始アドレス@1:offline:開始アドレス
+mem plug 領域
+DMMが使用する。特定UseCase時にはheapとして明示的に取得される
+
+◆ rammap との関連について
+- rammap のありか
+/セット/presetdata/rammap/rammap.xls
+- 見るべきシート
+SSITEM の Rammap で設定されている名前
+
+** bash で1ファイルごとに処理
+find . -name "*" | while read f;
+do
+echo $f
+done
+** McodecAPI 仕様書
+\\jptkyfss77\sfs11209\DIAD_SW\Diadem\共有ドキュメント\004. ソフトウエア設計図と各種ドキュメントスナップショット\API ドキュメント\AVBB\Infra\moviecodec
+** arm performace monitor unit
+PDF の p.206 に event のリストがある
+** affinty の設定について
+1. ps -L -eo 'pid,tid,psr,comm,pri'
+で対象の process id を調べる
+2. cat /proc/pid/status
+で調べられる
+※ pid は 1. で調べたものを使用
+
+** clearcase branch
+element /vobs/Mpr-Infra-ex_131H/...          .../br_dev_151h_autoedit_kousoku_yoshino/LATEST
+element /vobs/Mpr-Infra-ex_131H/...          DEV_MPR-INFRA-EX_COMMON_141007_02                -mkbranch br_dev_151h_autoedit_kousoku_yoshino
+element /vobs/Mpr-Infra-ex_131H/...          /main/LATEST                                     -mkbranch br_dev_151h_autoedit_kousoku_yoshino
+** Kernel
+ /vobs/Kernel_131H/arch/arm/mach-cxd90014/include/mach/platform.h \

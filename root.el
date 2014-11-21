@@ -1,75 +1,50 @@
 ;;;================================================================================
 ;;; 言語の設定
 ;;;================================================================================
-(set-language-environment "Japanese")
-(set-terminal-coding-system 'utf-8-unix)
-(set-keyboard-coding-system 'utf-8-unix)
-(set-buffer-file-coding-system 'utf-8-unix)
-(setq default-buffer-file-coding-system 'utf-8-unix)
-(set-default-coding-systems 'utf-8-unix)
-(setq default-file-name-coding-system 'shift_jis) ;; dired-x でファイル名の文字化け対処
-
-
-;;;
-;;; 日本語の設定
-;;;
-(setq default-input-method "W32-IME")
-(setq-default w32-ime-mode-line-state-indicator "[--]")                 ;; インジケーター設定
-(setq w32-ime-mode-line-state-indicator-list '("[--]" "[あ]" "[--]"))   ;; インジケーター設定
-(setq ime-activate-cursor-color   "#00a000")                            ;; カーソル色設定
-(setq ime-inactivate-cursor-color "#000000")                            ;; カーソル色設定
-(set-cursor-color ime-inactivate-cursor-color)                          ;; カーソル色設定
-(add-hook 'w32-ime-on-hook 												;; カーソル色設定
-          (function (lambda () 											;; カーソル色設定
-                      (set-cursor-color ime-activate-cursor-color)))) 	;; カーソル色設定
-(add-hook 'w32-ime-off-hook 											;; カーソル色設定
-          (function (lambda () 											;; カーソル色設定
-                      (set-cursor-color ime-inactivate-cursor-color)))) ;; カーソル色設定
-(w32-ime-initialize)
-
-;;;
-;;; font の設定
-;;;
-(set-default-font "Ricty-13.5") ; 半角:全角が1:2になるのは、限られている
+(cond ((eq window-system 'w32)
+       (load-file (expand-file-name "language-windows.el" emacs-setting-root))) ;;; for windows.
+      ((eq window-system 'mac)
+       (load-file (expand-file-name "language-mac.el" emacs-setting-root))))    ;;; for mac.
 
 ;;;================================================================================
 ;;; キーバインドの設定．
 ;;;================================================================================
+;;; On
 (global-set-key "\C-c\C-c" 'comment-region)
-(global-set-key "\C-co" 'occur)
-(global-set-key "\C-x\C-l" 'goto-line)
-(global-set-key "\C-m" 'newline-and-indent)
+(global-set-key "\C-o"   'occur)
+(global-set-key "\C-l"   'goto-line)
+(global-set-key (kbd "C-;") 'anything)
 (global-set-key "\C-cr"  'org-remember)
 (global-set-key "\C-ca"  'org-agenda)
 (global-set-key "\C-cl"  'org-store-link)
 (global-set-key "\C-cn"  'org-add-note)
 (global-set-key "\C-cts" 'org-agenda-clock-in)
 (global-set-key "\C-cte" 'org-agenda-clock-out)
+(global-set-key "\C-cg" 'anything-imenu)
+(global-set-key "\C-xf" 'find-file-at-point)
+;;; Off
+(global-unset-key "\C-xb") ;;; anything の入り口を C-; にするが、C-b が癖になっているので Off にする
+
 
 ;;;================================================================================
-;;; 他設定
+;;; タブ幅の設定
 ;;;================================================================================
-;;;
-;;; マウスカーソルを消す設定
-;;; TODO: Meadowのような方法がない。。。
-;;;
-(if (eq window-system 'x)
-    (mouse-avoidance-mode 'animate))
+(setq default-tab-width 4)
 
-;;;
+;;;================================================================================
 ;;; ChangeLog のユーザ名の指定．
-;;;
+;;;================================================================================
 (setq user-full-name "Daisuke Funamoto")
 (setq user-mail-address "Daisuke.Funamoto@jp.sony.com")
 
-;;;
+;;;================================================================================
 ;;; 折り返しの設定
-;;;
+;;;================================================================================
 (set-default 'truncate-lines t)
 
-;;;
+;;;================================================================================
 ;;; dired-x
-;;;
+;;;================================================================================
 (load "dired-x")
 ; ディレクトリを先に表示する
 (setq ls-lisp-dirs-first t)
@@ -78,60 +53,37 @@
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 (define-key dired-mode-map "a" 'dired-advertised-find-file)
 
-;;;
+;;;================================================================================
 ;;; スクロールした時に表示される行数
-;;;
+;;;================================================================================
 (setq scroll-step 1)
 
-;;;
+;;;================================================================================
 ;;; ビープ音をOff
-;;;
+;;;================================================================================
 (setq visible-bell 1)
 
-;;;
+;;;================================================================================
 ;;; Windowsみたいに選んだところを消しながらコピーする
-;;;
+;;;================================================================================
 (delete-selection-mode 1)
 
-;;;
-;;; Windowsみたいに選択範囲をハイライトする
-;;;
-;(pc-selection-mode)
+;;;================================================================================
+;;; 表示/非表示
+;;;================================================================================
+(setq inhibit-startup-screen t)   ; スタートアップ
+(menu-bar-mode 0)                 ; メニューバー
+(tool-bar-mode 0)                 ; ツールバー
+(scroll-bar-mode t)               ; スクロールバー
 
-;;;
-;;; 非表示系
-;;;
-(setq inhibit-startup-screen 1)   ; スタートアップ非表示
-(menu-bar-mode 0)                 ; メニューバー非表示
-(tool-bar-mode 0)                 ; ツールバー非表示
-(scroll-bar-mode -1)              ; スクロールバー非表示
-
-;;;
+;;;================================================================================
 ;;; uniquify
 ;;; 同一ファイル名を分かりやすく表示
-;;;
+;;;================================================================================
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'post-forward-angle-brackets)
 (setq uniquify-ignore-buffers-re "*[^*]+*")
 
-;;;
-;;; iswitchb
-;;; バッファー切り替え時入力
-;;; C-s, C-r で候補を選択
-;;;
-; (iswitchb-mode 1)
-; (setq read-buffer-function 'iswitchb-read-buffer)
-; ; 正規表現を使うかどうか
-; (setq iswitchb-regexp nil)
-; (setq iswitchb-prompt-newbuffer nil)
-
-;;;
-;;; ido
-;;; ファイル入力時にも iswitchb を適用
-;;;
-;(ido-mode 1)
-;(ido-everywhere 1)
- 
 ;;;
 ;;; font-lock
 ;;;
@@ -223,8 +175,6 @@
 ;                   '(mouse-color      . "black")
 ;                   '(cursor-color     . "black")
 ;				   '(cursor-type . box) ;
-                   '(menu-bar-lines . 1)
-                   '(vertical-scroll-bars . nil) ;;スクロールバーはいらない
 ;		    '(width . 240)  ;; ウィンドウ幅
 ;		    '(height . 68) ;; ウィンドウの高さ
 		    '(top . 0)
@@ -260,7 +210,7 @@
 (setq-default indent-tabs-mode nil)
 (add-hook 'c++-mode-hook
           '(lambda ()
-             (setq tab-width 32)
+             (setq tab-width 4)
              (setq c-basic-offset 4)
              (setq c++-auto-newline nil)
              (setq c++-tab-always-indent t)
@@ -286,7 +236,7 @@
              (c-set-offset 'class-open 0)
              (c-set-offset 'comment-intro 0)
              (c-set-offset 'cpp-macro -128)
-             (c-set-offset 'cpp-macro-cont 0)
+             (c-set-offset 'cpp-macro-cont 4)
              (c-set-offset 'defun-block-intro '+)
              (c-set-offset 'defun-close 0)
              (c-set-offset 'defun-open 0)
@@ -491,10 +441,26 @@
   (setq ediff-window-setup-function 'ediff-setup-windows-plain))
 
 
-;;;
+;;;================================================================================
+;;; 最近開いたファイルの履歴を覚えておく
+;;; - リンク切れたファイルがあると固まるので設定しないでおく
+;;;================================================================================
+;(setq recentf-max-saved-items 500)
+;(recentf-mode 1)
+
+;;;================================================================================
 ;;; anything
-;;;
+;;;================================================================================
 (require 'anything-startup)
+(setq anything-sources
+      '(anything-c-source-buffers
+        anything-c-source-files-in-current-dir
+        anything-c-source-buffer-not-found
+        anything-c-source-recentf
+        anything-c-source-emacs-commands
+        anything-c-source-imenu
+        ))
+
 
 ;;;
 ;;; migemo
