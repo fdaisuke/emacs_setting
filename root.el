@@ -165,16 +165,16 @@
 (if (boundp 'window-system)
     (setq initial-frame-alist
           (append (list
-;		   '(foreground-color . "azure3") ;; 文字が白
-;                   '(background-color . "black") ;; 背景は黒
-;                   '(border-color     . "black")
-;                   '(mouse-color      . "white")
-;                   '(cursor-color     . "white")
-;                   '(background-color . "white") ;; 背景は黒
-;                   '(border-color     . "white")
-;                   '(mouse-color      . "black")
-;                   '(cursor-color     . "black")
-;				   '(cursor-type . box) ;
+		   '(foreground-color . "azure3") ;; 文字が白
+                   '(background-color . "black") ;; 背景は黒
+                   '(border-color     . "black")
+                   '(mouse-color      . "white")
+                   '(cursor-color     . "white")
+                   '(background-color . "white") ;; 背景は黒
+                   '(border-color     . "white")
+                   '(mouse-color      . "black")
+                   '(cursor-color     . "black")
+				   '(cursor-type . box) ;
 ;		    '(width . 240)  ;; ウィンドウ幅
 ;		    '(height . 68) ;; ウィンドウの高さ
 		    '(top . 0)
@@ -461,6 +461,17 @@
         anything-c-source-imenu
         ))
 
+;;;
+;;; dired-x で特定拡張子を非表示にする
+;;; 現在の設定は c-h v でチェックする
+;;;
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (load "dired-x")
+            (setq dired-omit-files-p t)
+            ))
+; .pyc を追加
+(cons ".pyc" dired-omit-extensions)
 
 ;;;
 ;;; migemo
@@ -493,3 +504,4 @@
 ;;; 初期値を https://www.google.co.jp として、入れることができる。
 ;;;
 ; (ffap-bindings)
+

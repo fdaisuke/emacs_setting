@@ -287,7 +287,7 @@ make avmoviecodec=1
 make avavcmpeg2=1
 ** osal print
 #include <ulogio_pro.h>
-osal_printf_pro(SID_I_MPR, 0, DEBUG_ERROR, "%s", buffer);
+   osal_printf_pro(SID_I_MPR, 0, DEBUG_ERROR, "%s", buffer);
 ** mpr log
 <\\MPR_DOC_MediaWG\次世代\開発環境\ツール\logconv\>
 ** パタジェネ
@@ -423,3 +423,102 @@ element /vobs/Mpr-Infra-ex_131H/...          DEV_MPR-INFRA-EX_COMMON_141007_02  
 element /vobs/Mpr-Infra-ex_131H/...          /main/LATEST                                     -mkbranch br_dev_151h_autoedit_kousoku_yoshino
 ** Kernel
  /vobs/Kernel_131H/arch/arm/mach-cxd90014/include/mach/platform.h \
+** bash でパスワードを隠す方法
+- stty -echo でコンソールに文字を出さなくする
+- stty echo 上記を解除する
+- e.g.
+echo -n "username: "
+read username
+echo -n "password: "
+stty -echo
+read password
+stty echo
+echo ""
+** [program][gcc]: 関数トレース
+- コンパイル時にオプションつける
+gcc -finstrument-functions hoge.cpp
+- フック関数を定義する
+extern "C" {
+void
+__cyg_profile_func_enter(void* func_addr, void* call_site)
+{
+    /// func_addr: 呼び出された関数アドレス
+    /// call_site: 戻りアドレス
+}
+void
+__cyg_profile_func_exit(void* func_addr, void* call_site)
+{
+    /// func_addr: 呼び出された関数アドレス
+    /// call_site: 戻りアドレス
+}
+}
+- トレースに関数を含めない関数宣言
+void test() __attribute__((no_instrument_function))
+{
+}
+
+** [program][security]: リンク
+owasp.securityinnovation.com
+** [linux][shell]: 行数を取得
+wc -l caller_addr.txt | awk '{ print $1 }'
+grep -c "" caller_addr.txt
+** [windows]: 送るに追加方法
+以下に置く
+C:\Users\Username\AppData\Roaming\Microsoft\Windows\SendTo
+** [gcc]: 組み込みマクロで backtrace を知る
+__builtin_return_address
+** [linux]: 動いている最中に backtrace をとる
+- ブレーク送信 -> t
+- ブレーク送信 -> q
+** [MPR]: salr(salvage reset, サルアール)の判断
+r1: 0x53414c52
+
+** [MC]: エラー通知
+Avbb-MovieCodec_131H/export/mcIf.h
+** [linux]: nfs mount
+=== 以下クライアント側の設定 ===#
+# mount.
+$ mkdir -p /mnt/nfs
+$ mount -t nfs server_name:/xxx /mnt/nfs
+# 共有ボリュームのオートマウント
+$ vi /etc/fstab
+server_name:/xxx /mnt/nfs nfs defaults 0 0
+** [program][python]: クラス変数とインスタンス変数
+class jenkins_task():
+    member0 = 0
+    def __init__(self):
+        self.member1 = 1
+        self.member0 = 1
+member0 はすべてのインスタンスで共用される
+member1 はインスタンスにバインドされる
+print jenkins_task.member0 # => 0
+jt = jenkins_task()        #
+print jt.member0           # => 1
+print jt.member1           # => 1
+基本クラス変数は使わなくて良い
+** [jenkins]: 実行スクリプトのオプションについて
+-xe がついて実行される
+-x: 実行されたコマンドを表示
+-e: 0 じゃないコードを受け取ったら終了する
+** [emacs]: シーケンスに要素を追加
+(cons 追加したいもの シーケンス)
+** [python]: tuple のリスト を dict でアクセス
+l = [ ("key0", "value0") ("key1", "value1") ]
+dict(l)["key0"] ==> value0
+dict(l)["key1"] ==> value1
+
+
+** [program][gcc]: ignore warnings about 'mangling of 'va_list' at building by arm cross-gcc.
+-Wno-psabi
+psabi: processor specific application binary interface.
+** [linux][rpm]:
+- ソースコードから rpm パッケージを作成する
+  - src の rpm package を download
+  - rpm -ivvh xxx.rpm
+  - 展開された先の SPECS に移動
+  - rpmbuild -ba xxx.spec
+  - できた rpm パッケージをインストール
+- 古いものに置き換える
+  - rpm -Uvvh --oldpackage xxx.rpm
+** [program][c++]:
+global constructors keyed to は ctors で呼ばれる関数
